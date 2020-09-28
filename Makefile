@@ -34,6 +34,7 @@ MINISATIP_COMMIT=54df9348e7bd7e6075f54f1b93ec4ad36429abe0
 MINISATIP5_COMMIT=67e88c2d743d6df9c4a96aad772414169f61b764
 MINISATIP7_COMMIT=d22ba0dfe3c706c3ab6ad86486d8a9e913080f7e
 MINISATIP8_COMMIT=8e2362435cc8c5e0babc3e7ca67570c7f7dd03c5
+MINISATIP10_COMMIT=05d7c916d1c97e5872b738d24739e99145e64ebf
 
 BUSYBOX=busybox-1.26.2
 
@@ -127,6 +128,7 @@ CPIO_SRCS += minisatip
 CPIO_SRCS += minisatip5
 CPIO_SRCS += minisatip7
 CPIO_SRCS += minisatip8
+CPIO_SRCS += minisatip10
 CPIO_SRCS += oscam
 CPIO_SRCS += tools/axehelper
 CPIO_SRCS += nfsutils
@@ -160,6 +162,8 @@ fs.cpio: $(CPIO_SRCS)
 	  $(foreach f,$(notdir $(wildcard apps/minisatip7/html/*)), -e "apps/minisatip7/html/$f:usr/share/minisatip7/html/$f") \
 	  -e "apps/minisatip8/minisatip:sbin/minisatip8" \
 	  $(foreach f,$(notdir $(wildcard apps/minisatip8/html/*)), -e "apps/minisatip8/html/$f:usr/share/minisatip8/html/$f") \
+	  -e "apps/minisatip10/minisatip:sbin/minisatip10" \
+	  $(foreach f,$(notdir $(wildcard apps/minisatip10/html/*)), -e "apps/minisatip10/html/$f:usr/share/minisatip10/html/$f") \
 	  -e "apps/$(NANO)/src/nano:usr/bin/nano" \
 	  -e "apps/mtd-utils/nandwrite:usr/sbin/nandwrite2" \
 	  -e "apps/oscam-svn/Distribution/oscam-1.20_svn$(OSCAM_REV)-sh4-linux:sbin/oscamd"
@@ -410,16 +414,46 @@ minisatip8: apps/minisatip8/minisatip
 minisatip8-clean:
 	rm -rf apps/minisatip8
 
+
+
+#
+# minisatip10
+#
+
+apps/minisatip10/minisatip:
+	rm -rf apps/minisatip10
+	$(call GIT_CLONE,https://github.com/catalinii/minisatip.git,minisatip10,$(MINISATIP10_COMMIT))
+	cd apps/minisatip10 && ./configure \
+		--enable-axe \
+		--disable-dvbca \
+		--disable-dvbapi \
+		--disable-dvbcsa \
+		--disable-dvbaes \
+		--disable-netceiver
+	make -C apps/minisatip10 \
+	  CC=$(TOOLCHAIN)/bin/sh4-linux-gcc \
+	  EXTRA_CFLAGS="-O2 -I$(CURDIR)/kernel/include"
+
+.PHONY: minisatip10
+minisatip10: apps/minisatip10/minisatip
+
+.PHONY: minisatip10-clean
+minisatip10-clean:
+	rm -rf apps/minisatip10
+
+
+
 #
 # minisatip package
 #
 
-dist/packages/minisatip-$(VERSION).tar.gz: minisatip minisatip5 minisatip7 minisatip8
+dist/packages/minisatip-$(VERSION).tar.gz: minisatip minisatip5 minisatip7 minisatip8 minisatip10
 	rm -rf fs/usr/share/minisatip
 	mkdir -p fs/usr/share/minisatip/icons/ \
 		 fs/usr/share/minisatip/html/ \
 		 fs/usr/share/minisatip7/html/ \
-		 fs/usr/share/minisatip8/html/
+		 fs/usr/share/minisatip8/html/ \
+		 fs/usr/share/minisatip10/html/
 	install -m 755 apps/minisatip/minisatip fs/sbin/minisatip
 	install -m 644 apps/minisatip/icons/* fs/usr/share/minisatip/icons/
 	install -m 755 apps/minisatip5/minisatip fs/sbin/minisatip5
@@ -427,14 +461,17 @@ dist/packages/minisatip-$(VERSION).tar.gz: minisatip minisatip5 minisatip7 minis
 	install -m 755 apps/minisatip7/minisatip fs/sbin/minisatip7
 	install -m 644 apps/minisatip7/html/* fs/usr/share/minisatip7/html/
 	install -m 755 apps/minisatip8/minisatip fs/sbin/minisatip8
-	install -m 644 apps/minisatip8/html/* fs/usr/share/minisatip7/html8
+	install -m 644 apps/minisatip8/html/* fs/usr/share/minisatip8/html/
+	install -m 755 apps/minisatip10/minisatip fs/sbin/minisatip10
+	install -m 644 apps/minisatip10/html/* fs/usr/share/minisatip10/html/
 	tar cvz -C fs -f dist/packages/minisatip-$(VERSION).tar.gz \
 		sbin/minisatip \
 		sbin/minisatip5 \
 		usr/share/minisatip/icons \
 		usr/share/minisatip/html \
 		usr/share/minisatip7/html \
-		usr/share/minisatip8/html
+		usr/share/minisatip8/html \
+		usr/share/minisatip10/html
 	ls -la dist/packages/minisatip*
 
 .PHONY: minisatip-package
