@@ -34,7 +34,7 @@ MINISATIP_COMMIT=54df9348e7bd7e6075f54f1b93ec4ad36429abe0
 MINISATIP5_COMMIT=67e88c2d743d6df9c4a96aad772414169f61b764
 MINISATIP7_COMMIT=d22ba0dfe3c706c3ab6ad86486d8a9e913080f7e
 MINISATIP8_COMMIT=8e2362435cc8c5e0babc3e7ca67570c7f7dd03c5
-MINISATIP10_COMMIT=05d7c916d1c97e5872b738d24739e99145e64ebf
+MINISATIP10_COMMIT=0e489d2ef4cc1f2868650041e7eac9a506b1c024
 
 BUSYBOX=busybox-1.26.2
 
@@ -423,7 +423,7 @@ minisatip8-clean:
 apps/minisatip10/minisatip:
 	rm -rf apps/minisatip10
 	$(call GIT_CLONE,https://github.com/catalinii/minisatip.git,minisatip10,$(MINISATIP10_COMMIT))
-	cd apps/minisatip10 && ./configure \
+	cd apps/minisatip10 && patch -p1 < ../../patches/minisatip10-axe.patch && ./configure \
 		--enable-axe \
 		--disable-dvbca \
 		--disable-dvbapi \
