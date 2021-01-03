@@ -1,0 +1,29 @@
+diff --git a/html/status.html b/html/status.html
+index 2b23441..114cbfc 100755
+--- a/html/status.html
++++ b/html/status.html
+@@ -242,8 +242,9 @@
+ 
+ 				// AXE
+ 				if (has_axe) {
+-					myTable += "<td class='dt-right'>" + state['ad_axe_pktc'][i] + " </td>";
+-					myTable += "<td class='dt-right'>" + state['ad_axe_ccerr'][i] + " </td>";
++					var ccerrperc = state['ad_axe_ccerr'][i] / (state['ad_axe_pktc'][i] / 100)
++                    myTable += "<td class='dt-right'>" + state['ad_axe_pktc'][i] + " </td>";
++                    myTable += "<td class='dt-right'>" + state['ad_axe_ccerr'][i] + "<br />" + ccerrperc.toPrecision(1) + "% </td>";
+ 					myTable += "<td class='dt-right'>" + state['ad_axe_coax'][i] + " </td>";
+ 				}
+ 
+diff --git a/src/minisatip.c b/src/minisatip.c
+index 5299a11..1dd622c 100644
+--- a/src/minisatip.c
++++ b/src/minisatip.c
+@@ -607,7 +607,7 @@ void set_options(int argc, char *argv[])
+ #endif
+ #ifdef AXE
+ 	opts.no_threads = 1;
+-	opts.document_root = "/usr/share/minisatip/html";
++	opts.document_root = "/usr/share/minisatip10/html";
+ #define AXE_OPTS "7:QW:8:A:"
+ #else
+ #define AXE_OPTS ""
